@@ -1,4 +1,8 @@
 data/
+.vscode/
+settings.json
+__pycache__/
+*.pyc
 *.csv
 dataset_old.py
 demo.py
