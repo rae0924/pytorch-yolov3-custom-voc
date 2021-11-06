@@ -1,10 +1,10 @@
 data/
+venv/
 .vscode/
 settings.json
 __pycache__/
 *.pyc
 *.csv
 dataset_old.py
-demo.py
-loss.py
 train.py
+test.py

@@ -4,6 +4,26 @@ import pandas as pd
 import cv2
 import os
 from utils import iou_width_height
+import albumentations as A
+from albumentations.pytorch import ToTensorV2
+
+
+IMAGE_SIZE = 416
+IMGAGE_DIR = './data/VOCdevkit/VOC2012/JPEGImages'
+
+TRANSFORMS = A.Compose(
+    [ 
+        A.LongestMaxSize(max_size=IMAGE_SIZE),
+        A.PadIfNeeded(
+            min_height=int(IMAGE_SIZE),
+            min_width=int(IMAGE_SIZE),
+            border_mode=cv2.BORDER_CONSTANT,
+        ),
+        A.Normalize(mean=[0, 0, 0], std=[1, 1, 1], max_pixel_value=255,),
+        ToTensorV2(),
+    ],
+        bbox_params=A.BboxParams(format="yolo", min_visibility=0.4, label_fields=[]),
+)
 
 
 
@@ -19,10 +39,10 @@ class CustomVOCDataset(Dataset):
     def __init__(
         self, 
             csv_file='annotations.csv', 
-            image_dir='images', 
+            image_dir=IMGAGE_DIR, 
             anchors=ANCHORS, 
-            image_size=416,
-            transforms=None
+            image_size=IMAGE_SIZE,
+            transforms=TRANSFORMS
     ):
         super().__init__()
         self.image_dir = image_dir
@@ -50,6 +70,11 @@ class CustomVOCDataset(Dataset):
         image_file = self.unique_images[index]
         image_path = os.path.join(self.image_dir, image_file)
         image = cv2.imread(image_path, cv2.IMREAD_COLOR)
+        
+        if image is None:
+            print("image couldn't be read")
+            return
+
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
 
         # get all the objects for the image and 
@@ -73,7 +98,9 @@ class CustomVOCDataset(Dataset):
             bboxes.append([xmid, ymid, width, height, label])
 
         if self.transforms:
-            pass
+            augmentations = self.transforms(image=image, bboxes=bboxes)
+            image = augmentations["image"]
+            bboxes = augmentations["bboxes"]
         
         # for each scale, (number of anchers in that scale, scale_size, scale_size, 6)
         # 6 is for size of (p of obj, x, y, w, h, class)
@@ -107,11 +134,13 @@ class CustomVOCDataset(Dataset):
                 elif not anchor_taken and iou_anchors[anchor_idx] > self.ignore_iou_thresh:
                     targets[scale_idx][anchor_on_scale, i, j, 0] = -1  # ignore prediction
 
-
-
         return image, tuple(targets)
 
 if __name__ == '__main__':
-    ds = CustomVOCDataset(image_dir='./data/VOCdevkit/VOC2012/JPEGImages')
-    out = ds[0]
-    print(out[0].shape)
+    ds = CustomVOCDataset()
+    for i in range(len(ds)):
+        image, targets = ds[i]
+        print(image.shape)
+        
+    
+    

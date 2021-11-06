@@ -92,7 +92,7 @@ class ScaledPrediction(nn.Module):
     
     def forward(self, x: torch.Tensor):
         x = self.pred(x)
-        #x = x.reshape(x.shape[0], 3, x.shape[2], x.shape[3], self.num_classes+5)
+        x = x.reshape(x.shape[0], 3, x.shape[2], x.shape[3], self.num_classes+5)
         return x
 
 
@@ -126,9 +126,9 @@ class YOLOv3(nn.Module):
             Neck(in_channels=384) 
         ])
         self.scaled_predictions = nn.ModuleList(modules=[
-            ScaledPrediction(in_channels=512),
-            ScaledPrediction(in_channels=256),
-            ScaledPrediction(in_channels=128)
+            ScaledPrediction(in_channels=512, num_classes=self.num_classes),
+            ScaledPrediction(in_channels=256, num_classes=self.num_classes),
+            ScaledPrediction(in_channels=128, num_classes=self.num_classes)
         ])
         self.upsamples = nn.ModuleList(modules=[
             ConvUpsample(in_channels=512),
@@ -168,9 +168,6 @@ class YOLOv3(nn.Module):
 
         return predictions
 
-net = YOLOv3()
-x = torch.rand([1,3,416,416])
-y = net(x)
-print([i.shape for i in y])
+
 
 
