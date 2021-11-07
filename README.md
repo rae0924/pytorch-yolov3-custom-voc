@@ -12,7 +12,7 @@ I picked out classes that were of particular interest to me, such as the followi
 * 'car'
 * 'bicycle'
 
-as defined in the config.py. Annotations.py takes in those classes and filters out the annotations. The script will pull together all relevant 
+as defined in  config.py. Annotations.py takes in those classes and filters out the annotations. The script will pull together all relevant 
 bounding boxes and their annotations and dump it into a CSV file that can be understood easily by the wrapper in dataset.py. 
 
 ## Quick Setup
