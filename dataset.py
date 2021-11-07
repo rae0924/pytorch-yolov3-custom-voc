@@ -4,34 +4,7 @@ import pandas as pd
 import cv2
 import os
 from utils import iou_width_height
-import albumentations as A
-from albumentations.pytorch import ToTensorV2
-
-
-IMAGE_SIZE = 416
-IMGAGE_DIR = './data/VOCdevkit/VOC2012/JPEGImages'
-
-TRANSFORMS = A.Compose(
-    [ 
-        A.LongestMaxSize(max_size=IMAGE_SIZE),
-        A.PadIfNeeded(
-            min_height=int(IMAGE_SIZE),
-            min_width=int(IMAGE_SIZE),
-            border_mode=cv2.BORDER_CONSTANT,
-        ),
-        A.Normalize(mean=[0, 0, 0], std=[1, 1, 1], max_pixel_value=255,),
-        ToTensorV2(),
-    ],
-        bbox_params=A.BboxParams(format="yolo", min_visibility=0.4, label_fields=[]),
-)
-
-
-
-ANCHORS = [
-    [(0.28, 0.22), (0.38, 0.48), (0.9, 0.78)],
-    [(0.07, 0.15), (0.15, 0.11), (0.14, 0.29)],
-    [(0.02, 0.03), (0.04, 0.07), (0.08, 0.06)],
-]  # Note these have been rescaled to be between [0, 1]
+import config
 
 
 class CustomVOCDataset(Dataset):
@@ -39,10 +12,12 @@ class CustomVOCDataset(Dataset):
     def __init__(
         self, 
             csv_file='annotations.csv', 
-            image_dir=IMGAGE_DIR, 
-            anchors=ANCHORS, 
-            image_size=IMAGE_SIZE,
-            transforms=TRANSFORMS
+            image_dir=config.IMGAGE_DIR, 
+            anchors=config.ANCHORS, 
+            image_size=config.IMAGE_SIZE,
+            S = config.S,
+            C = config.C, 
+            transforms=config.TRANSFORMS
     ):
         super().__init__()
         self.image_dir = image_dir
@@ -52,11 +27,10 @@ class CustomVOCDataset(Dataset):
         self.num_anchors = self.anchors.shape[0]
         self.num_anchors_per_scale = self.num_anchors // 3
         self.image_size = image_size
-        self.S = [self.image_size//32, self.image_size//16, self.image_size//8]
+        self.S = S
+        self.C = C
         self.unique_images = self.df['image_file'].unique()
-        classes = self.df['class'].unique()
-        self.label_encoder = {y:x for (x,y) in enumerate(classes)}  
-        self.C = classes.shape[0]
+        self.label_encoder = {y:x for (x,y) in enumerate(config.CLASS_TARGETS)}  
         self.transforms = transforms
         self.ignore_iou_thresh = 0.5
 
@@ -136,11 +110,3 @@ class CustomVOCDataset(Dataset):
 
         return image, tuple(targets)
 
-if __name__ == '__main__':
-    ds = CustomVOCDataset()
-    for i in range(len(ds)):
-        image, targets = ds[i]
-        print(image.shape)
-        
-    
-    

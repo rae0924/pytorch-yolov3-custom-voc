@@ -1,4 +1,11 @@
 import torch
+from torch.utils.data import SubsetRandomSampler, DataLoader
+import torch.optim as optim
+import torch.nn as nn
+import numpy as np
+import os
+import config
+
 
 def iou_width_height(boxes1, boxes2):
     """
@@ -61,3 +68,40 @@ def intersection_over_union(boxes_preds, boxes_labels, box_format="midpoint"):
     box2_area = abs((box2_x2 - box2_x1) * (box2_y2 - box2_y1))
 
     return intersection / (box1_area + box2_area - intersection + 1e-6)
+
+'''
+Splits dataset into train and validation sets given a p value.
+Returns loaders for both training and validation.
+'''
+def train_val_split(dataset, p=0.5, seed=None, batch_size=1):
+    split = int(np.floor(p*len(dataset)))
+    indices = np.arange(len(dataset))
+    if isinstance(seed, int): np.random.seed(seed)
+    np.random.shuffle(indices)
+    train_indices, val_indices = indices[split:], indices[:split]
+    train_sampler = SubsetRandomSampler(train_indices)
+    val_sampler = SubsetRandomSampler(val_indices)
+    train_loader = DataLoader(dataset, batch_size, sampler=train_sampler)
+    val_loader = DataLoader(dataset, batch_size, sampler=val_sampler)
+    return train_loader, val_loader
+
+
+def save_checkpoint(path, model: nn.Module, opt: optim.Optimizer, epoch, history):        
+    torch.save({
+        'epoch': epoch,
+        'model_state_dict': model.state_dict(),
+        'optimizer_state_dict': opt.state_dict(),
+        'history': history,
+    }, path)
+
+def load_checkpoint(path, model: nn.Module, opt: optim.Optimizer, epoch, history):
+    if os.path.exists(path):
+        checkpoint = torch.load(path)
+        model.load_state_dict(checkpoint['model_state_dict'])
+        opt.load_state_dict(checkpoint['optimizer_state_dict'])
+        epoch = checkpoint['epoch']
+        history = checkpoint['history']
+        return model, opt, epoch, history
+    else:
+        print('check point does not exit')
+        return

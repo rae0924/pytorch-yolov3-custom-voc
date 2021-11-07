@@ -2,22 +2,13 @@ import xml.etree.ElementTree as ET
 import pandas as pd
 import glob
 import os
+from config import ANNOTATION_DIR, CSV_PATH, CLASS_TARGETS
 
-class_targets = [
-    'person',
-    'motorbike',
-    'bus',
-    'car',
-    'bicycle'
-]
-
-annotations_dir = './data/VOCdevkit/VOC2012/Annotations/'
-csv_path = './annotations.csv'
 
 annotation_file_list, image_file_list, class_list = [], [], []
 width_list, height_list, depth_list = [], [], []
 xmin_list, ymin_list, xmax_list, ymax_list = [], [], [], []
-for xmlfilepath in glob.glob(annotations_dir+'*.xml'):
+for xmlfilepath in glob.glob(ANNOTATION_DIR+'*.xml'):
     xmlfile = ET.parse(xmlfilepath)
     root = xmlfile.getroot()
     annotation_file = os.path.basename(xmlfilepath)
@@ -30,7 +21,7 @@ for xmlfilepath in glob.glob(annotations_dir+'*.xml'):
 
     for obj in [child for child in root if child.tag == 'object']:
         class_name = obj.find('name').text
-        if class_name in class_targets:
+        if class_name in CLASS_TARGETS:
             bbox = obj.find('bndbox')
             xmin = float(bbox.find('xmin').text)
             ymin = float(bbox.find('ymin').text)
@@ -63,4 +54,4 @@ df = pd.DataFrame(
     }
 )           
 
-df.to_csv(csv_path)
+df.to_csv(CSV_PATH)
