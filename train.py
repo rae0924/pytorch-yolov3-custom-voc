@@ -8,19 +8,6 @@ import utils
 import numpy as np
 
 
-# ds = CustomVOCDataset()
-# net = YOLOv3(num_classes=ds.C)
-# loss_fn = YOLOv3Loss()
-
-# image, targets = ds[0]
-# x = image.unsqueeze(0)
-# y = net(x)
-
-# total_loss = (
-#     loss_fn(y[0], targets[0].unsqueeze(0), scaled_anchors[0])
-#     + loss_fn(y[1], targets[1].unsqueeze(0), scaled_anchors[1])
-#     + loss_fn(y[2], targets[2].unsqueeze(0), scaled_anchors[2])
-# )
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
 
