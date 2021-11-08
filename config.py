@@ -48,6 +48,7 @@ WEIGHT_DECAY = 1e-4
 BATCH_SIZE = 4
 NUM_EPOCHS = 10
 
+# paths
 SAVE_PATH = './save/yolo_v3.pt'
-
+CP_PATH = './save/yolo_v3.pt'
 

@@ -1,5 +1,5 @@
 import torch
-from torch.utils.data import SubsetRandomSampler, DataLoader
+from torch.utils.data import SubsetRandomSampler, DataLoader, Dataset
 import torch.optim as optim
 import torch.nn as nn
 import numpy as np
@@ -73,7 +73,7 @@ def intersection_over_union(boxes_preds, boxes_labels, box_format="midpoint"):
 Splits dataset into train and validation sets given a p value.
 Returns loaders for both training and validation.
 '''
-def train_val_split(dataset, p=0.5, seed=None, batch_size=1):
+def train_val_split(dataset: Dataset, p=0.5, seed=None, batch_size=1):
     split = int(np.floor(p*len(dataset)))
     indices = np.arange(len(dataset))
     if isinstance(seed, int): np.random.seed(seed)
@@ -86,7 +86,7 @@ def train_val_split(dataset, p=0.5, seed=None, batch_size=1):
     return train_loader, val_loader
 
 
-def save_checkpoint(path, model: nn.Module, opt: optim.Optimizer, epoch, history):        
+def save_checkpoint(path, model, opt: optim.Optimizer, epoch, history):        
     torch.save({
         'epoch': epoch,
         'model_state_dict': model.state_dict(),
@@ -94,7 +94,7 @@ def save_checkpoint(path, model: nn.Module, opt: optim.Optimizer, epoch, history
         'history': history,
     }, path)
 
-def load_checkpoint(path, model: nn.Module, opt: optim.Optimizer, epoch, history):
+def load_checkpoint(path, model: nn.Module, opt: optim.Optimizer):
     if os.path.exists(path):
         checkpoint = torch.load(path)
         model.load_state_dict(checkpoint['model_state_dict'])
@@ -104,4 +104,4 @@ def load_checkpoint(path, model: nn.Module, opt: optim.Optimizer, epoch, history
         return model, opt, epoch, history
     else:
         print('check point does not exit')
-        return
+        return model, opt, 0, []
