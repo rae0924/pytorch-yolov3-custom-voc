@@ -5,7 +5,7 @@ import cv2
 
 # annotations.py
 ANNOTATION_DIR = './data/VOCdevkit/VOC2012/Annotations/'
-CSV_PATH = './annotations.csv'
+CSV_PATH = './data/annotations.csv'
 CLASS_TARGETS = [
     'person',
     'motorbike',
@@ -16,7 +16,7 @@ CLASS_TARGETS = [
 
 # dataset parameters
 IMAGE_SIZE = 416
-IMGAGE_DIR = './data/VOCdevkit/VOC2012/JPEGImages'
+IMAGE_DIR = './data/VOCdevkit/VOC2012/JPEGImages'
 S = [IMAGE_SIZE//32, IMAGE_SIZE//16, IMAGE_SIZE//8]
 C = len(CLASS_TARGETS)
 
@@ -45,8 +45,8 @@ TRANSFORMS = A.Compose(
 # model hyperparameters
 LEARNING_RATE = 1e-5
 WEIGHT_DECAY = 1e-4
-BATCH_SIZE = 4
-NUM_EPOCHS = 10
+BATCH_SIZE = 8
+NUM_EPOCHS = 100
 
 # paths
 SAVE_PATH = './save/yolo_v3.pt'

@@ -10,7 +10,6 @@ import numpy as np
 
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 
-
 def train_batch(x, y, model, opt, loss_fn, scaled_anchors):
     model.train()
     opt.zero_grad()
@@ -23,7 +22,6 @@ def train_batch(x, y, model, opt, loss_fn, scaled_anchors):
     loss.backward()
     opt.step()
     return loss
-
 
 
 def train_model(train_set, val_set, epochs=config.NUM_EPOCHS, save_path=config.SAVE_PATH, cp_path=config.CP_PATH):

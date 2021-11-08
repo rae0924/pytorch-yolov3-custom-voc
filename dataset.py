@@ -11,8 +11,8 @@ class CustomVOCDataset(Dataset):
     
     def __init__(
         self, 
-            csv_file='annotations.csv', 
-            image_dir=config.IMGAGE_DIR, 
+            csv_file=config.CSV_PATH, 
+            image_dir=config.IMAGE_DIR, 
             anchors=config.ANCHORS, 
             image_size=config.IMAGE_SIZE,
             S = config.S,
